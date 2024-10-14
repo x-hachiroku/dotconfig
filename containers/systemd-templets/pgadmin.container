@@ -1,0 +1,17 @@
+[Service]
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
+
+[Container]
+ContainerName=pgadmin
+Image=docker.io/dpage/pgadmin4
+
+Volume=/etc/localtime:/etc/localtime:ro
+
+Environment=PGADMIN_DEFAULT_EMAIL=admin@yukimura.moe
+Environment=PGADMIN_DEFAULT_PASSWORD=admin
+
+Pod=postgres.pod
