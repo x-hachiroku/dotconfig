@@ -1,0 +1,32 @@
+#!/bin/zsh
+
+
+BOT_TOKEN=
+CHAT_ID=
+
+zparseopts -D -E f:=file_opt i:=img_opt P=no_prefix
+
+if [[ -n ${no_prefix} ]]; then
+    text="${*}"
+else
+    text="[$HOST] ${*}"
+fi
+if [[ -n ${file_opt} ]]; then
+    curl -X POST \
+        "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument" \
+        -F chat_id="$CHAT_ID" \
+        -F document=@"$file_opt[2]" \
+        -F caption="$text"
+elif [[ -n ${img_opt} ]]; then
+    curl -X POST \
+        "https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto" \
+        -F chat_id="$CHAT_ID" \
+        -F photo=@"$img_opt[2]" \
+        -F caption="$text"
+else
+    curl -Ss -X POST \
+        "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+        -d chat_id="$CHAT_ID" \
+        -d parse_mode='HTML' \
+        -d text="$text"
+fi

@@ -1,0 +1,14 @@
+[Unit]
+Description=SnapRAID Scrub
+
+Requires=snapraid-sync.service
+After=snapraid-sync.service
+
+ConditionPathIsMountPoint=/mnt/data
+ConditionPathIsMountPoint=/mnt/rabbithole
+ConditionPathIsMountPoint=/mnt/parity
+
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/snapraid scrub -p 5
