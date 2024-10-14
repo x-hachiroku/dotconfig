@@ -1,0 +1,16 @@
+[Service]
+Restart=always
+RestartSec=60
+
+
+[Install]
+WantedBy=default.target
+
+
+[Container]
+ContainerName=open-webui
+Image=ghcr.io/open-webui/open-webui:main
+
+PublishPort=6600:8080
+
+Volume=${HOME}/containers/open-webui:/app/backend/data

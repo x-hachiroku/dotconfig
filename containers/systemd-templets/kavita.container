@@ -1,0 +1,17 @@
+[Unit]
+ConditionPathIsMountPoint=/mnt/data
+
+
+[Service]
+Restart=always
+RestartSec=60
+
+
+[Container]
+ContainerName=kavita
+Image=docker.io/jvmilazz0/kavita
+
+PublishPort=8700:5000
+
+Volume=${HOME}/containers/kavita:/kavita/config
+Volume=/mnt/data/shared/manga:/manga:ro

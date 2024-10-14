@@ -1,0 +1,15 @@
+[Service]
+Restart=always
+RestartSec=60
+
+
+[Container]
+ContainerName=caddy
+Image=localhost/caddy:cfdns
+
+Network=host
+
+Volume=${HOME}/containers/caddy/Caddyfile:/etc/caddy/Caddyfile
+Volume=${HOME}/containers/caddy/config:/config/caddy
+Volume=${HOME}/containers/caddy/data:/data
+Volume=${HOME}/containers/caddy/srv:/srv:ro

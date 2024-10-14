@@ -1,0 +1,21 @@
+[Service]
+Restart=always
+RestartSec=60
+
+
+[Install]
+WantedBy=default.target
+
+
+[Container]
+ContainerName=node-exporter
+Image=docker.io/prom/node-exporter
+
+Network=host
+
+Volume=/:/host:ro,rslave
+Volume=/etc/localtime:/etc/localtime:ro
+
+Exec=--collector.textfile.directory=/host/tmp/prometheus/textfiles/ \
+    --path.rootfs=/host \
+    --web.listen-address=:6550

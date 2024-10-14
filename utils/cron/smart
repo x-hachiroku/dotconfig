@@ -1,0 +1,30 @@
+#!/bin/zsh
+
+source /home/chieri/.config/zsh/rc.d/20-aliases.zsh
+source /home/chieri/.config/zsh/rc.d/99-local.zsh
+
+setopt CSH_NULL_GLOB
+
+tg "<b>SMART Report - $(date)</b>"
+
+failed=0
+for disk in /dev/sd? /dev/nvme?n1; do
+    _smart=$(smartctl -H -i -A "$disk" 2>&1 | tail -n +4 | sed -z 's/\n$//')
+    tg "<b>$disk</b>"$'\n'"<code>$_smart</code>"
+
+    a05=$( echo "$_smart" | awk '/Reallocated_Sector_Ct/   {print $10}')
+    a196=$(echo "$_smart" | awk '/Reallocated_Event_Count/ {print $10}')
+    a197=$(echo "$_smart" | awk '/Current_Pending_Sector/  {print $10}')
+    a198=$(echo "$_smart" | awk '/Offline_Uncorrectable/   {print $10}')
+    heal=$(echo "$_smart" | grep 'SMART overall-health self-assessment test result: PASSED')
+    if [[ $a05 -gt 0 || $a196 -gt 0 || $a197 -gt 0 || $a198 -gt 0 || -z $heal ]]; then
+        ((failed++))
+        tg '<b>Error detected!</b>'
+    fi
+done
+
+if [[ failed -eq 0 ]]; then
+    tg '<b>All disks healthy</b>'
+else
+    tg "<b>$failed failed!</b>"
+fi
