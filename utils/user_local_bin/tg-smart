@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+/usr/local/bin/tg "<b>SMART WARNING</b>
+
+Device: $SMARTD_DEVICE
+
+$SMARTD_MESSAGE"
