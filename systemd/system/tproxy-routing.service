@@ -1,0 +1,15 @@
+[Unit]
+Description=ip route and rule for clash tproxy
+After=network.target
+Before=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/ip rule add fwmark 233 table 233
+ExecStart=/usr/sbin/ip route add local default dev lo table 233
+ExecStop=/usr/sbin/ip rule del fwmark 233 table 233
+ExecStop=/usr/sbin/ip route del local default dev lo table 233
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,7 @@
+[Pod]
+PodName=hath-pod
+
+Network=host
+# PublishPort=1036:1036
+
+PodmanArgs=--share=net

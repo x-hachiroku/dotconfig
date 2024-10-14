@@ -1,0 +1,19 @@
+[Service]
+Restart=always
+RestartSec=60
+
+
+[Container]
+ContainerName=copilot-api
+Image=localhost/copilot-api
+
+Exec=--verbose --rate-limit 1
+
+PublishPort=6660:4141
+
+Volume=%h/containers/copilot-api/data:/root/.local/share/copilot-api
+Volume=/etc/localtime:/etc/localtime:ro
+
+Environment=HTTP_PROXY=http://host.containers.internal:9000
+Environment=HTTPS_PROXY=http://host.containers.internal:9000
+Environment=ALL_PROXY=socks5://host.containers.internal:9000

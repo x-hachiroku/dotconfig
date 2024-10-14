@@ -1,0 +1,29 @@
+Include /etc/ssh/sshd_config.d/*.conf
+
+LogLevel INFO
+SyslogFacility AUTH
+Banner none
+
+Port 22
+AddressFamily any
+ListenAddress 0.0.0.0
+ListenAddress ::
+
+
+PermitRootLogin no
+LoginGraceTime 60
+StrictModes yes
+MaxAuthTries 4
+MaxSessions 8
+
+KbdInteractiveAuthentication no
+PasswordAuthentication no
+PermitEmptyPasswords no
+AuthenticationMethods publickey
+
+X11Forwarding yes
+Subsystem sftp /usr/lib/ssh/sftp-server -f AUTHPRIV -l INFO
+
+HostKey /etc/ssh/ssh_host_ed25519_key
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+KexAlgorithms curve25519-sha256@libssh.org,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256
