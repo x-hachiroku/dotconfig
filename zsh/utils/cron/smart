@@ -1,0 +1,32 @@
+#!/usr/bin/env zsh
+
+source /home/chieri/.config/zsh/rc.d/20-aliases.zsh
+source /home/chieri/.config/zsh/rc.d/99-local.zsh
+
+disks=(/dev/sd? /dev/nvme?n?)
+failed=0
+
+tg "<b>SMART Weekly Report - $(date)</b>"
+
+for disk in $disks; do
+    smart=$(smartctl -H -A -l selftest "$disk" 2>&1)
+    tg "<b>$disk</b>"$'\n'"<code>$smart</code>"
+
+    a05=$( echo "$smart" | awk '/Reallocated_Sector_Ct/   {print $10}')
+    a196=$(echo "$smart" | awk '/Reallocated_Event_Count/ {print $10}')
+    a197=$(echo "$smart" | awk '/Current_Pending_Sector/  {print $10}')
+    a198=$(echo "$smart" | awk '/Offline_Uncorrectable/   {print $10}')
+    heal=$(echo "$smart" | awk '/SMART overall-health self-assessment test result/ {print $6}')
+
+    if [[ $heal != 'PASSED' || $a05 -gt 0 || $a196 -gt 0 || $a197 -gt 0 || $a198 -gt 0 ]]; then
+        ((failed++))
+        tg '⚠️Issue Detected⚠️'
+    fi
+done
+
+
+if [[ failed == 0 ]]; then
+    tg 'All Checks Passed'
+else
+    tg "⚠️$failed failed⚠️"
+fi
