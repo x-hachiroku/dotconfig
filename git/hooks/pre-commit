@@ -1,0 +1,42 @@
+#!/usr/bin/env zsh
+
+set -u
+
+err=0
+
+while IFS= read -r -d '' file; do
+    [[ -z "$file" ]] && continue
+
+    mode=$(git ls-files --stage -- "$file" 2>/dev/null | awk '{print $1}')
+    if [[ -z "$mode" || "$mode" == "160000" ]]; then
+        continue
+    fi
+
+    if [[ $(git show ":$file" | wc -c) -eq 0 ]]; then
+        continue
+    fi
+
+    issue=''
+
+    eof_count=$(git show ":$file" | grep -o -z -I -P '\n+$' | wc -c)
+    if [[ "$eof_count" -gt 2 ]]; then
+        issue=$'Multiple newlines at EOF\n'
+    elif [[ "$eof_count" -eq 0 ]]; then
+        issue=$'No newline at EOF\n'
+    fi
+
+    trailing_ws=$(git show ":$file" | grep -n -I -P '[ \t]+$' || true)
+    if [[ -n "$trailing_ws" ]]; then
+        issue+=$'Trailing whitespace found on lines:\n'"$trailing_ws"$'\n'
+    fi
+
+    if [[ -n "$issue" ]]; then
+        printf $'File: %s\n%s\n' "$file" "$issue"
+        err=1
+    fi
+done < <(git diff --cached --name-only -z --diff-filter=ACMR)
+
+if [[ $err -ne 0 ]]; then
+    printf $'\nCommit aborted.\n'
+    exit 233
+fi

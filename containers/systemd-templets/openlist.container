@@ -1,0 +1,16 @@
+[Unit]
+ConditionPathIsMountPoint=/mnt/data
+
+
+[Service]
+Restart=always
+RestartSec=60
+
+
+[Container]
+ContainerName=openlist
+Image=docker.io/openlistteam/openlist:latest
+
+Volume=%h/containers/openlist:/opt/openlist/data
+Volume=/mnt/data:/data:ro
+Volume=/etc/localtime:/etc/localtime:ro

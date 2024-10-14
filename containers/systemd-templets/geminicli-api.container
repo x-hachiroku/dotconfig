@@ -1,0 +1,12 @@
+[Service]
+Restart=always
+RestartSec=60
+
+
+[Container]
+ContainerName=geminicli-api
+Image=localhost/geminicli-api
+
+PublishPort=6670:7860
+
+Volume=/etc/localtime:/etc/localtime:ro
