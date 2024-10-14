@@ -1,0 +1,28 @@
+#!/bin/zsh
+
+CID=
+DIR=/run/node_exporter/textfiles/
+mkdir -p $DIR
+
+rm -f $DIR/hath.prom
+
+curl --silent --max-time 1 -b "$(jq -r 'to_entries | map("\(.key)=\(.value)") | join("; ")' /etc/cookies/eh.json)" 'https://e-hentai.org/hentaiathome.php' \
+    | pup '#hct tr:last-child text{}' | grep . | awk '
+        NR == 6 { print "hath_files_served_total " $1 };
+        NR == 10 { print "hath_max_rate\t" $1 };
+        NR == 11 { print "hath_trust\t" $1 };
+        NR == 12 { print "hath_quality\t" $1 };
+        NR == 13 { print "hath_hitrate\t" $1 };
+        NR == 14 { print "hath_hathrate\t" $1 };' \
+    | sed 's/,//g' \
+    > $DIR/hath.prom
+
+curl --silent --max-time 1 -b "$(jq -r 'to_entries | map("\(.key)=\(.value)") | join("; ")' /etc/cookies/eh.json)" "https://e-hentai.org/hentaiathome.php?cid=$CID&act=settings" \
+    | pup 'td.infotv > p:first-child > strong text{}' \
+    | paste <(
+        echo "hath_c1_total"
+        echo "hath_c2_total"
+        echo "hath_c3_total"
+        echo "hath_c4_total"
+    ) - \
+    >> $DIR/hath.prom
