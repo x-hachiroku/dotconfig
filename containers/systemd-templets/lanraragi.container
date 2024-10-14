@@ -1,0 +1,15 @@
+[Service]
+Restart=always
+RestartSec=10
+
+
+[Container]
+ContainerName=lanraragi
+Image=docker.io/difegue/lanraragi
+
+PublishPort=8800:3000
+
+Volume=${HOME}/containers/lanraragi/thumbs:/home/koyomi/lanraragi/thumb:z
+Volume=${HOME}/containers/lanraragi/database:/home/koyomi/lanraragi/database:z
+Volume=${HOME}/containers/lanraragi/LRR-galleryinfo.txt/HatHGalleryinfo.pm:/home/koyomi/lanraragi/lib/LANraragi/Plugin/HatHGalleryinfo.pm:ro
+Volume=/etc/localtime:/etc/localtime:ro
