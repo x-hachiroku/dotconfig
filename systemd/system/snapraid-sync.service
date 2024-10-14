@@ -1,0 +1,10 @@
+[Unit]
+Description=SnapRAID Sync
+
+ConditionPathIsMountPoint=/mnt/data
+ConditionPathIsMountPoint=/mnt/rabbithole
+ConditionPathIsMountPoint=/mnt/parity
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/snapraid sync

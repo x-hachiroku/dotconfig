@@ -1,0 +1,132 @@
+cf-v4: &cf-v4 '1.1.1.1'
+
+log-level: debug
+
+allow-lan: true
+bind-address: '*'
+mixed-port: 9000
+tproxy-port: 9069
+
+mode: rule
+ipv6: false
+tcp-concurrent: true
+find-process-mode: off
+global-client-fingerprint: safari
+
+external-controller: 0.0.0.0:9500
+external-ui: /usr/share/metacubexd/
+
+
+dns:
+  enable: true
+  ipv6: true
+  listen: 0.0.0.0:9053
+  default-nameserver: &default-nameserver
+    - 1.1.1.1
+    - 223.5.5.5
+  nameserver: *default-nameserver
+  proxy-server-nameserver: *default-nameserver
+  fallback:
+    - quic://dns.adguard-dns.com
+    - tls://8.8.4.4
+    - 'https://cloudflare-dns.com/dns-query#US'
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    geosite:
+      - gfw
+    ipcidr:
+      - 0.0.0.0/8
+      - 10.0.0.0/8
+      - 127.0.0.0/8
+      - 169.254.0.0/16
+      - 172.16.0.0/12
+      - 192.168.0.0/16
+
+proxy-providers: []
+
+
+proxy-groups:
+  - name: JP
+    filter: '(?i)日本|JP|JAP|TYO'
+    type: url-test
+    url: 'https://www.gstatic.com/generate_204'
+    interval: 300
+    lazy: false
+    include-all-providers: true
+
+
+  - name: TW
+    filter: '(?i)台|TW|TAI'
+    type: url-test
+    url: 'https://www.gstatic.com/generate_204'
+    interval: 300
+    lazy: true
+    include-all-providers: true
+
+  - name: US
+    filter: '(?i)美|US'
+    type: url-test
+    url: 'https://www.gstatic.com/generate_204'
+    interval: 300
+    lazy: false
+    include-all-providers: true
+
+
+  - name: SG
+    filter: '(?i)新加坡|SG|SIN'
+    type: url-test
+    url: 'https://www.gstatic.com/generate_204'
+    interval: 300
+    lazy: false
+    include-all-providers: true
+
+  - name: Default
+    exclude-filter: '(?i)港|HK|HONG'
+    type: url-test
+    # type: load-balance
+    # strategy: consistent-hashing
+    # strategy: round-robin
+    url: 'https://www.gstatic.com/generate_204'
+    interval: 300
+    lazy: false
+    include-all-providers: true
+
+  - name: Manual
+    type: select
+    include-all: true
+
+
+geo-auto-update: true
+geo-update-interval: 48
+geodata-mode: true
+geodata-loader: standard
+geox-url:
+  geoip: 'https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat'
+  geosite: 'https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat'
+
+rules:
+  - DST-PORT,9200,REJECT
+  - DST-PORT,9300,REJECT
+  - GEOIP,private,DIRECT,no-resolve
+  - GEOSITE,category-ads-all,REJECT
+  - GEOSITE,private,DIRECT
+
+  # - DOMAIN-SUFFIX,youtube.com,DIRECT
+  # - DOMAIN-SUFFIX,googlevideo.com,DIRECT
+  # - DOMAIN-KEYWORD,google,Default
+  # - DOMAIN-KEYWORD,gemini,Default
+  # - GEOSITE,google,Default
+
+  - DOMAIN-SUFFIX,chatgpt.com,SG
+  - DOMAIN-SUFFIX,openai.com,SG
+  - DOMAIN-SUFFIX,claude.ai,SG
+  - DOMAIN-SUFFIX,claude.com,SG
+
+  - DOMAIN-SUFFIX,dmm.com,JP
+  - DOMAIN-SUFFIX,dmm.co.jp,JP
+  - DOMAIN-SUFFIX,dlsite.com,JP
+  - DOMAIN-SUFFIX,yo-star.com,JP
+  - DOMAIN-SUFFIX,mahjongsoul.com,JP
+
+  - MATCH,DIRECT

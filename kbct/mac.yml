@@ -1,0 +1,11 @@
+- keyboards: ["Apple Internal Keyboard / Trackpad (1)"]
+  keymap:
+    leftmeta: leftctrl
+    capslock: leftalt
+    leftctrl: capslock
+    rightmeta: rightctrl
+
+  layers:
+    - modifiers: ['capslock']
+      keymap:
+        enter: kpenter

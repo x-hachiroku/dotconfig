@@ -1,0 +1,80 @@
+{
+  "allow_overriding": true,
+  "parallel_loading": true,
+  "suppress_warnings": false,
+  "entries_color": "",
+  "honor_ansi_color": false,
+  "logo_style": "",
+  "entries_icon": false,
+  "entries": [
+    { "type": "User" },
+    { "type": "Hostname" },
+    { "type": "Distro" },
+    {
+      "type": "Kernel",
+      "check_version": false
+    },
+    { "type": "Uptime" },
+    {
+      "type": "LoadAverage",
+      "decimal_places": 3,
+      "warning_threshold": 8,
+      "danger_threshold": 12
+    },
+    { "type": "Processes" },
+    { "type": "WindowManager" },
+    { "type": "DesktopEnvironment" },
+    { "type": "Shell" },
+    {
+      "type": "Terminal",
+      "use_unicode": true
+    },
+    { "type": "Packages" },
+    {
+      "type": "Temperature",
+      "char_before_unit": " ",
+      "sensors_chipsets": [],
+      "sensors_excluded_subfeatures": [],
+      "use_fahrenheit": false
+    },
+    {
+      "type": "CPU",
+      "one_line": false,
+      "show_cores": true
+    },
+    {
+      "type": "GPU",
+      "one_line": false,
+      "max_count": 2
+    },
+    {
+      "type": "RAM",
+      "warning_use_percent": 50,
+      "danger_use_percent": 80
+    },
+    {
+      "type": "Disk",
+      "show_filesystems": ["local"],
+      "combine_total": true,
+      "disk_labels": null,
+      "hide_entry_name": null,
+      "warning_use_percent": 75,
+      "danger_use_percent": 90
+    },
+    {
+      "type": "LAN_IP",
+      "one_line": true,
+      "max_count": 5,
+      "show_global": false,
+      "show_link_local": false,
+      "ipv6_support": false
+    }
+  ],
+  "default_strings": {
+    "latest": "latest",
+    "available": "available",
+    "no_address": "No Address",
+    "not_detected": "Not detected",
+    "virtual_environment": "Virtual Environment"
+  }
+}
