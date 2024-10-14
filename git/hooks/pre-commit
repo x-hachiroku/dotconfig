@@ -1,0 +1,33 @@
+#!/bin/zsh
+
+set -u
+
+err=0
+
+for file in `git diff --cached --name-only --diff-filter=ACMR`; do
+    issue=''
+
+    eof=$(git show ":$file" | grep -o -z -I -P '\n+$' | wc -c)
+    if [[ "$eof" -gt 2 ]]; then
+        issue="Multiple newlines at EOF\n"
+    elif [[ "$eof" -eq 0 ]]; then
+        issue="No newline at EOF\n"
+    fi
+
+
+    trailing_ws=$(git show ":$file" | grep -n -I -P '\s+$')
+    if [ -n "$trailing_ws" ]; then
+        issue="${issue}Trailing whitespace found on lines:\n$trailing_ws\n"
+    fi
+
+    if [[ -n "$issue" ]]; then
+        echo -e "File: $file\n$issue"
+        err=1
+    fi
+done
+
+if [[ $err -ne 0 ]]; then
+    echo
+    echo 'Commit aborted.'
+    exit 233
+fi

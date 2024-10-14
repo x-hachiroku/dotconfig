@@ -1,0 +1,5 @@
+[Pod]
+PodName=postgres-pod
+PublishPort=6300:80
+
+UserNS=keep-id

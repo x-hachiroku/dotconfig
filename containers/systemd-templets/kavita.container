@@ -1,0 +1,12 @@
+[Service]
+Restart=always
+RestartSec=10
+
+
+[Container]
+ContainerName=kavita
+Image=docker.io/jvmilazz0/kavita
+
+PublishPort=8700:5000
+
+Volume=${HOME}/containers/kavita:/kavita/config
