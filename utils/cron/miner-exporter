@@ -1,0 +1,55 @@
+#!/bin/bash
+
+CPU_API='http://127.0.0.1:6900/2/summary'
+GPU_API='http://127.0.0.1:6950'
+DIR="/tmp/prometheus/textfiles"
+
+mkdir -p $DIR
+
+## xmrig
+curl --silent --max-time 1 --header 'Authorization: Bearer 233' $CPU_API | jq -r \
+'"cpu_miner_uptime \(.uptime)
+cpu_miner_diff \(.connection.diff)
+cpu_miner_shares_accepted_total \(.results.shares_good)
+cpu_miner_shares_total \(.results.shares_total)
+cpu_miner_pool_uptime \(.connection.uptime)
+cpu_miner_pool_latency \(.connection.ping)
+cpu_miner_hashrate \(.hashrate.total[1])"' >$DIR/cpu.prom 2>/dev/null
+if [ ${PIPESTATUS[0]} -ne 0 ]; then
+    rm -f $DIR/cpu.prom
+fi
+
+
+## wild
+# curl --silent --max-time 1 $GPU_API | jq -r \
+# '"gpu_miner_uptime \(.uptime)
+# gpu_fan_speed \(.hwmon.fan[0])
+# gpu_core_clock \(.hwmon.cclk[0])
+# gpu_mem_clock \(.hwmon.mclk[0])
+# gpu_core_temp \(.hwmon.temp[0])
+# gpu_asic_power \(.hwmon.power[0])
+# gpu_miner_diff \(.results.diff_current)
+# gpu_miner_shares_total \(.results.shares_total)
+# gpu_miner_shares_accepted_total \(.results.shares_accepted[0])
+# gpu_miner_shares_stale_total \(.results.shares_ignored[0])
+# gpu_miner_shares_rejected_total \(.results.shares_rejected[0])
+# gpu_miner_pool_latency \(.connection.ping)
+# gpu_miner_hashrate \(.hashrate.total[1])"' >$DIR/gpu.prom 2>/dev/null
+
+## srb
+curl --silent --max-time 1 $GPU_API | jq -r \
+'"gpu_miner_uptime \(.mining_time)
+gpu_fan_speed  \(.gpu_devices[0].fan_speed_rpm)
+gpu_core_clock \(.gpu_devices[0].core_clock)
+gpu_mem_clock  \(.gpu_devices[0].memory_clock)
+gpu_core_temp  \(.gpu_devices[0].temperature)
+gpu_asic_power \(.gpu_devices[0].asic_power)
+gpu_miner_pool_latency \(.algorithms[0].pool.latency)
+gpu_miner_hashrate     \(.algorithms[0].hashrate.["1min"])
+gpu_miner_diff         \(.algorithms[0].pool.difficulty)
+gpu_miner_shares_total          \(.algorithms[0].shares.total)
+gpu_miner_shares_accepted_total \(.algorithms[0].shares.accepted)
+gpu_miner_shares_rejected_total \(.algorithms[0].shares_rejected)"' | sed -e 's/null/0/g' >$DIR/gpu.prom 2>/dev/null
+if [ ${PIPESTATUS[0]} -ne 0 ]; then
+    rm -f $DIR/gpu.prom
+fi
