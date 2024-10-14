@@ -1,0 +1,15 @@
+[Service]
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
+
+[Container]
+ContainerName=peerbanhelper
+Image=docker.io/ghostchu/peerbanhelper
+
+PublishPort=7850:9898
+
+Volume=${HOME}/containers/peerbanhelper:/app/data:z
+Volume=/etc/localtime:/etc/localtime:ro
