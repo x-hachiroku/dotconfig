@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+import os, sys
+import re, glob
+import unicodedata
+import tempfile, yaml
+from subprocess import call
+from mutagen.flac import FLAC
+from mutagen.easymp4 import EasyMP4
+
+
+EDITOR = os.environ.get('EDITOR', 'vi')
+
+base = sys.argv[1]
+
+audios = []
+for file in sorted(glob.glob(glob.escape(base)+'/*.flac')):
+    audio = FLAC(file)
+    audios.append(audio)
+for file in sorted(glob.glob(glob.escape(base)+'/*.m4a')):
+    audio = EasyMP4(file)
+    audios.append(audio)
+
+
+tracks = []
+album = {'album': [''], 'albumartist': [''], 'date': [''], 'tracks': tracks}
+
+
+for i in range(len(audios)):
+    audios_dict = dict(audios[i])
+    keys = tuple(audios_dict.keys())
+
+    filename = os.path.splitext(os.path.basename(audios[i].filename))[0]
+    disc, track, title = re.findall(r'^(\d-)?(\d+) (.*)', filename)[0]
+
+    disc = disc[:-1] if disc else '1'
+    if 'title' not in keys:
+        audios_dict['title'] = [title]
+    if 'discnumber' not in keys:
+        audios_dict['discnumber'] = [disc]
+    if 'tracknumber' not in keys:
+        audios_dict['tracknumber'] = [track]
+    if 'artist' not in keys:
+        audios_dict['artist'] = album['albumartist']
+
+    to_split = ['artist', 'albumartist', 'composer', 'label', 'genre']
+    for key in keys:
+        if audios_dict[key] == ['']:
+            del audios_dict[key]
+            continue
+        if key in to_split and len(audios_dict[key]) == 1:
+            audios_dict[key] = re.split(r'\s*[,、，;\/／；&＆・]\s*', audios_dict[key][0])
+        for i in range(len(audios_dict[key])):
+            audios_dict[key][i] = audios_dict[key][i].replace('：', ':')
+            audios_dict[key][i] = audios_dict[key][i].replace('CV.', 'CV:')
+            audios_dict[key][i] = audios_dict[key][i].replace('（', '(')
+            audios_dict[key][i] = audios_dict[key][i].replace('）', ')')
+
+    if i == 0:
+        if 'date' in audios[0]:
+            album['date'][0] = audios[0]['date'][0][:10]
+        elif 'year' in audios[0]:
+            album['date'][0] = audios[0]['year'][0][:10]
+
+        if 'album' in audios[0]:
+            album['album'] = audios[0]['album']
+        else:
+            album['album'] = [os.path.basename(base)]
+
+        if 'albumartist' in audios_dict:
+            album['albumartist'] = audios_dict['albumartist'][:]
+        elif 'artist' in audios_dict:
+            album['albumartist'] = audios_dict['artist'][:]
+
+    trash_tags = {'album', 'albumartist', 'date', 'mood', 'performer', 'year', 'organization'}
+    for key in keys:
+        if key in trash_tags or len(key) == 36:
+            del audios_dict[key]
+            continue
+
+    tracks.append(audios_dict)
+
+
+with tempfile.NamedTemporaryFile(mode='w+', suffix='.yaml') as tf:
+    yaml.dump(dict(album), tf,
+              width=1024, allow_unicode=True, default_style="'", default_flow_style=False)
+    tf.flush()
+
+    call([EDITOR, tf.name])
+
+    tf.seek(0)
+    tf_text = tf.read()
+    tf_text = unicodedata.normalize('NFC', tf_text)
+    modified = yaml.load(tf_text, Loader=yaml.FullLoader)
+    if not modified:
+        print("Nothing to do")
+        exit(0)
+    modified_tracks = modified['tracks']
+
+
+illegal_chars = r'[\/:\*\?"<>\|]'
+
+for i in range(len(audios)):
+    audios[i].delete()
+    audios[i].update(modified_tracks[i])
+    audios[i]['album'] = modified['album']
+    audios[i]['albumartist'] = modified['albumartist']
+    audios[i]['date'] = modified['date']
+    audios[i].save()
+
+    filetype = audios[i].filename.split('.')[-1]
+    new_name = f'{audios[i]["discnumber"][0]}-{audios[i]["tracknumber"][0]:0>2} {modified_tracks[i]["title"][0]}.{filetype}'
+    new_name = re.sub(illegal_chars, '_', new_name)
+    if new_name != audios[i].filename:
+        os.rename(audios[i].filename, base+'/'+new_name)
+
+new_base = modified['album'][0]
+# new_base = f'{';'.join(modified['albumartist']).replace(':', "")} - {modified['album'][0]}'
+new_base = re.sub(illegal_chars, '_', new_base)
+if base != new_base:
+    os.rename(base, new_base)
