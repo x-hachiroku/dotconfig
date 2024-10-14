@@ -1,0 +1,5 @@
+[Pod]
+PodName=prometheus-pod
+PublishPort=6500:3000
+
+UserNS=keep-id
