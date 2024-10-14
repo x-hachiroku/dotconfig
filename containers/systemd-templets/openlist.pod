@@ -1,0 +1,5 @@
+[Pod]
+PodName=openlist-pod
+PublishPort=6400:5244
+
+UserNS=keep-id

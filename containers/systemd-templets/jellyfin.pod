@@ -1,0 +1,4 @@
+[Pod]
+PodName=jellyfin-pod
+
+PublishPort=8500:8096

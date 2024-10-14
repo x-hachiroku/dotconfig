@@ -1,0 +1,18 @@
+[user]
+	name = x-hachiroku
+    email = gh.x86@yukimura.moe
+[core]
+	editor = nvim
+	quotePath = false
+	hooksPath = ~/.config/git/hooks
+	excludesfile = ~/.config/git/ignore
+[init]
+	defaultBranch = master
+[pull]
+	rebase = true
+[log]
+	abbrevCommit = true
+[format]
+	pretty = oneline
+[alias]
+	logs = log

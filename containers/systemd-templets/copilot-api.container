@@ -1,0 +1,11 @@
+[Container]
+ContainerName=copilot-api
+Image=localhost/copilot-api:caozhiyuan
+
+PublishPort=6660:4141
+
+Volume=${HOME}/containers/copilot-api:/root/.local/share/copilot-api
+
+Environment=HTTP_PROXY=http://host.containers.internal:9000
+Environment=HTTPS_PROXY=http://host.containers.internal:9000
+Environment=ALL_PROXY=socks5://host.containers.internal:9000

@@ -1,0 +1,21 @@
+[Service]
+Restart=always
+RestartSec=60
+
+
+[Install]
+WantedBy=default.target
+
+
+[Container]
+Pod=jellyfin.pod
+ContainerName=metatube
+Image=ghcr.io/metatube-community/metatube-server
+
+Volume=${HOME}/containers/metatube:/config
+
+Environment=HTTP_PROXY=http://host.containers.internal:9000
+Environment=HTTPS_PROXY=http://host.containers.internal:9000
+Environment=ALL_PROXY=socks5://host.containers.internal:9000
+
+Exec=-dsn /config/metatube.db
